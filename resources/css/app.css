@@ -1,0 +1,224 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+body {
+    background-color: #f2eee2;
+    background-image: radial-gradient(rgb(0 0 0 / 8%) 1px, transparent 1px);
+    background-size: 15px 15px;
+}
+
+/*
+ * Estética "archivo de oficina" retro: bordes negros marcados, sombra dura (sin blur),
+ * tarjetas tipo ventana de archivo con barra de título, y pestañas de carpeta para
+ * navegar jerarquías (torres → pisos → áreas → ubicaciones).
+ */
+
+@utility shadow-hard {
+    box-shadow: 5px 5px 0 0 #000;
+}
+
+@utility shadow-hard-sm {
+    box-shadow: 3px 3px 0 0 #000;
+}
+
+@layer components {
+    .card {
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 0.5rem;
+        box-shadow: 5px 5px 0 0 #000;
+    }
+
+    .btn-retro {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000;
+        color: #fff;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0 0 #000;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn-retro:hover {
+        box-shadow: none;
+        transform: translate(3px, 3px);
+        color: #fff;
+    }
+
+    .btn-retro:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .badge-retro {
+        display: inline-flex;
+        border: 1px solid rgb(0 0 0 / 70%);
+        border-radius: 0.25rem;
+        font-weight: 600;
+    }
+
+    .input-retro {
+        border: 2px solid #000;
+        border-radius: 0.375rem;
+        background-color: #fff;
+    }
+
+    .input-retro:focus {
+        outline: 2px solid #000;
+        outline-offset: 1px;
+    }
+
+    .input-retro:disabled {
+        background-color: #f3f1ea;
+    }
+
+    /* Barra de título tipo "ventana de archivo" (ver recursos/estética de referencia) */
+    .file-titlebar {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.9rem;
+        background-color: #e7e2d3;
+        border-bottom: 2px solid #000;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+        color: #44403c;
+    }
+
+    .file-titlebar .dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background-color: #000;
+        display: inline-block;
+        flex: none;
+    }
+
+    .file-titlebar .name {
+        margin-left: 0.375rem;
+    }
+
+    /* Pestañas de carpeta para navegar jerarquías (torres/pisos/áreas/ubicaciones) */
+    .tab-folder {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem 1.1rem 0.3rem 0.8rem;
+        background-color: #000;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        clip-path: polygon(0 0, 100% 0, 86% 100%, 0% 100%);
+        margin-right: -0.6rem;
+        white-space: nowrap;
+    }
+
+    .tab-folder:hover {
+        background-color: #292524;
+        color: #fff;
+    }
+
+    .tab-folder:last-child {
+        margin-right: 0;
+    }
+
+    .tab-folder.is-current {
+        background-color: #fcd34d;
+        color: #000;
+    }
+
+    .tab-folder.is-current:hover {
+        background-color: #fcd34d;
+    }
+
+    /* "Archivador" del edificio: cada torre es un mueble, cada piso un cajón (vista 2D, sin 3D) */
+    .cabinet {
+        background-color: #ded6c2;
+        border: 2px solid #000;
+        border-radius: 0.5rem;
+        padding: 1rem 0.75rem 0.75rem;
+        box-shadow: 5px 5px 0 0 #000;
+    }
+
+    .drawer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        background-color: #fff;
+        border: 2px solid #000;
+        border-radius: 0.25rem;
+        padding: 0.5rem 0.85rem;
+        margin-bottom: 0.375rem;
+        transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
+    }
+
+    .drawer:last-child {
+        margin-bottom: 0;
+    }
+
+    .drawer:hover {
+        background-color: #fde68a;
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 0 #000;
+    }
+
+    .drawer .handle {
+        width: 1.75rem;
+        height: 0.35rem;
+        border-radius: 9999px;
+        background-color: #000;
+        flex: none;
+    }
+
+    /* Chip de enlace rápido, inspirado en los "Quick links" de la referencia */
+    .chip-retro {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background-color: #e7e2d3;
+        border: 2px solid #000;
+        border-radius: 0.375rem;
+        padding: 0.3rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #000;
+        white-space: nowrap;
+        transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
+    }
+
+    .chip-retro:hover {
+        background-color: #fde68a;
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 0 #000;
+        color: #000;
+    }
+
+    .chip-retro .arrow {
+        font-size: 0.7rem;
+    }
+
+    /* Foco visible consistente para navegación por teclado */
+    .btn-retro:focus-visible,
+    .chip-retro:focus-visible,
+    .tab-folder:focus-visible,
+    .drawer:focus-visible {
+        outline: 2px solid #000;
+        outline-offset: 2px;
+    }
+}
