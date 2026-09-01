@@ -59,4 +59,16 @@ class SolicitudController extends Controller
     {
         return view('solicitudes.gracias', compact('solicitud'));
     }
+
+    public function comprobante(Solicitud $solicitud): View|RedirectResponse
+    {
+        if (! in_array($solicitud->estado, ['resuelto', 'no_resuelto'], true)) {
+            return redirect()->route('solicitudes.gracias', $solicitud);
+        }
+
+        $solicitud->load(['equipo', 'ubicacion.area.piso.torre', 'tecnico']);
+        $notaCierre = $solicitud->seguimientos()->latest()->first();
+
+        return view('solicitudes.comprobante', compact('solicitud', 'notaCierre'));
+    }
 }

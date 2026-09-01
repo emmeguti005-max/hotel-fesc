@@ -61,10 +61,18 @@
 
             <p class="text-xs text-stone-400 mb-4">Guardá este link para volver a consultar el estado más tarde.</p>
 
-            <a href="{{ route('solicitudes.create') }}"
-               class="inline-block btn-retro px-6 py-2 rounded-md font-bold">
-                Reportar otro problema
-            </a>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                @if (in_array($solicitud->estado, ['resuelto', 'no_resuelto'], true))
+                    <a href="{{ route('solicitudes.comprobante', $solicitud) }}"
+                       class="inline-block text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">
+                        Ver comprobante completo
+                    </a>
+                @endif
+                <a href="{{ route('solicitudes.create') }}"
+                   class="inline-block btn-retro px-6 py-2 rounded-md font-bold">
+                    Reportar otro problema
+                </a>
+            </div>
         </div>
     </div>
 @endsection

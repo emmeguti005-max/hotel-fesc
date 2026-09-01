@@ -16,6 +16,7 @@ Route::post('/solicitudes', [SolicitudController::class, 'store'])
     ->middleware('throttle:20,1')
     ->name('solicitudes.store');
 Route::get('/solicitudes/{solicitud}/gracias', [SolicitudController::class, 'gracias'])->name('solicitudes.gracias');
+Route::get('/solicitudes/{solicitud}/comprobante', [SolicitudController::class, 'comprobante'])->name('solicitudes.comprobante');
 
 Route::get('/plano', [PlanoController::class, 'index'])->name('plano.index');
 Route::get('/plano/{piso}', [PlanoController::class, 'show'])->name('plano.show');

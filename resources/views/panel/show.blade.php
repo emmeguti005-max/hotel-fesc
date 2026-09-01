@@ -12,7 +12,7 @@
 @endphp
 
 @section('content')
-    <a href="{{ route('panel.index') }}" class="text-sm text-stone-500 hover:text-stone-700">&larr; Volver</a>
+    <a href="{{ route('panel.index') }}" class="no-print text-sm text-stone-500 hover:text-stone-700">&larr; Volver</a>
 
     <div class="card overflow-hidden mt-4">
         <div class="file-titlebar">
@@ -100,6 +100,31 @@
             </div>
         </div>
     </div>
+
+    @if (in_array($solicitud->estado, ['resuelto', 'no_resuelto'], true))
+        <div id="qr-card" class="card overflow-hidden mt-6">
+            <div class="file-titlebar">
+                <span class="dot"></span><span class="dot"></span>
+                <span class="name">solicitud-{{ $solicitud->id }}.qr</span>
+            </div>
+            <div class="p-6 flex items-center gap-6">
+                <div class="w-32 h-32 shrink-0">{!! \App\Support\Qr::svg(route('solicitudes.comprobante', $solicitud)) !!}</div>
+                <div>
+                    <p class="font-bold text-sm">Comprobante de servicio #{{ $solicitud->id }}</p>
+                    <p class="text-xs text-stone-500">{{ $solicitud->equipo->nombre ?? ucfirst($solicitud->tipo) }}</p>
+                    <p id="qr-hint" class="text-xs text-stone-400 mt-2">Pegalo en el equipo como registro de que se atendió. Al escanearlo, cualquiera ve el comprobante.</p>
+                    <button id="qr-print-btn" onclick="window.print()" class="mt-3 text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">Imprimir sticker</button>
+                </div>
+            </div>
+        </div>
+
+        <style media="print">
+            header, nav, h3, .no-print { display: none !important; }
+            .card:not(#qr-card) { display: none !important; }
+            #qr-hint, #qr-print-btn { display: none !important; }
+            #qr-card { border: none !important; box-shadow: none !important; }
+        </style>
+    @endif
 
     <div class="card overflow-hidden mt-6">
         <div class="file-titlebar">
