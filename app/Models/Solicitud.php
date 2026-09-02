@@ -6,10 +6,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Solicitud extends Model
 {
     protected $table = 'solicitudes';
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $solicitud) {
+            $solicitud->token ??= Str::random(40);
+        });
+    }
 
     /** Horas máximas de respuesta según prioridad, antes de considerarse atrasada. */
     public const SLA_HORAS = [

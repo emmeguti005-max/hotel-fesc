@@ -15,12 +15,14 @@ Route::get('/solicitudes/nueva', [SolicitudController::class, 'create'])->name('
 Route::post('/solicitudes', [SolicitudController::class, 'store'])
     ->middleware('throttle:20,1')
     ->name('solicitudes.store');
-Route::get('/solicitudes/{solicitud}/gracias', [SolicitudController::class, 'gracias'])->name('solicitudes.gracias');
-Route::get('/solicitudes/{solicitud}/comprobante', [SolicitudController::class, 'comprobante'])->name('solicitudes.comprobante');
+Route::get('/solicitudes/{solicitud:token}/gracias', [SolicitudController::class, 'gracias'])->name('solicitudes.gracias');
+Route::get('/solicitudes/{solicitud:token}/comprobante', [SolicitudController::class, 'comprobante'])->name('solicitudes.comprobante');
 
-Route::get('/plano', [PlanoController::class, 'index'])->name('plano.index');
-Route::get('/plano/{piso}', [PlanoController::class, 'show'])->name('plano.show');
-Route::get('/equipos/{equipo}', [EquipoController::class, 'ficha'])->name('equipos.ficha');
+Route::middleware('auth')->group(function () {
+    Route::get('/plano', [PlanoController::class, 'index'])->name('plano.index');
+    Route::get('/plano/{piso}', [PlanoController::class, 'show'])->name('plano.show');
+    Route::get('/equipos/{equipo}', [EquipoController::class, 'ficha'])->name('equipos.ficha');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -44,7 +46,7 @@ Route::middleware('auth')->prefix('panel')->name('panel.')->group(function () {
     Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
     Route::get('/equipos/{equipo}/editar', [EquipoController::class, 'edit'])->name('equipos.edit');
     Route::put('/equipos/{equipo}', [EquipoController::class, 'update'])->name('equipos.update');
-    Route::delete('/equipos/{equipo}', [EquipoController::class, 'destroy'])->name('equipos.destroy');
+    Route::middleware('admin')->delete('/equipos/{equipo}', [EquipoController::class, 'destroy'])->name('equipos.destroy');
     Route::post('/equipos/{equipo}/posicion', [EquipoController::class, 'actualizarPosicion'])->name('equipos.posicion');
 
     Route::middleware('admin')->get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria');

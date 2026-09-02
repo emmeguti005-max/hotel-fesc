@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PanelController extends Controller
@@ -100,24 +101,34 @@ class PanelController extends Controller
 
     public function tomar(Solicitud $solicitud, Request $request): RedirectResponse
     {
-        if ($solicitud->estado !== 'pendiente') {
+        $tomada = DB::transaction(function () use ($solicitud, $request) {
+            $bloqueada = Solicitud::whereKey($solicitud->id)->lockForUpdate()->first();
+
+            if ($bloqueada->estado !== 'pendiente') {
+                return false;
+            }
+
+            $bloqueada->update([
+                'estado' => 'en_proceso',
+                'tecnico_id' => Auth::id(),
+                'fecha_asignacion' => now(),
+            ]);
+
+            Auditoria::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'tomar_solicitud',
+                'entidad' => 'solicitudes',
+                'entidad_id' => $bloqueada->id,
+                'ip' => $request->ip(),
+                'fecha' => now(),
+            ]);
+
+            return true;
+        });
+
+        if (! $tomada) {
             return back()->withErrors(['estado' => 'Esta solicitud ya fue tomada.']);
         }
-
-        $solicitud->update([
-            'estado' => 'en_proceso',
-            'tecnico_id' => Auth::id(),
-            'fecha_asignacion' => now(),
-        ]);
-
-        Auditoria::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'tomar_solicitud',
-            'entidad' => 'solicitudes',
-            'entidad_id' => $solicitud->id,
-            'ip' => $request->ip(),
-            'fecha' => now(),
-        ]);
 
         return back()->with('status', 'Solicitud asignada a ti.');
     }

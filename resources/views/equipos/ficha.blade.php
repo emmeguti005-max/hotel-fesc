@@ -80,7 +80,7 @@
                 <div>
                     <p class="font-bold text-sm">{{ $equipo->nombre }}</p>
                     <p class="text-xs text-stone-500">{{ $equipo->codigo ?? 'Sin código' }}</p>
-                    <p id="qr-hint" class="text-xs text-stone-400 mt-2">Pegalo en el equipo. Al escanearlo, cualquiera llega a esta ficha.</p>
+                    <p id="qr-hint" class="text-xs text-stone-400 mt-2">Pegalo en el equipo. Al escanearlo, el personal autenticado llega a esta ficha (pedirá iniciar sesión).</p>
                     <button id="qr-print-btn" onclick="window.print()" class="mt-3 text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">Imprimir sticker</button>
                 </div>
             </div>
