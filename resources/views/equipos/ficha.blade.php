@@ -1,7 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.panel')
 
 @section('title', $equipo->nombre)
-@section('container', 'max-w-2xl')
 
 @php
     $estadoBadge = [

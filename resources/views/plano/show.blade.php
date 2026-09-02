@@ -1,7 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.panel')
 
 @section('title', 'Plano · '.($piso->numero == -1 ? 'Sótano' : 'Piso '.$piso->numero))
-@section('container', 'max-w-4xl')
 
 @php
     $cols = max(1, (int) ceil(sqrt(max(1, $piso->areas->count()))));

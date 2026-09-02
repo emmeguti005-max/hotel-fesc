@@ -1,7 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.panel')
 
 @section('title', 'Plano')
-@section('container', 'max-w-5xl')
 
 @section('content')
     <h2 class="text-2xl font-extrabold tracking-tight mb-1">Plano de la clínica</h2>
