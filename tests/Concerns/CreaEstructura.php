@@ -2,9 +2,7 @@
 
 namespace Tests\Concerns;
 
-use App\Models\Area;
 use App\Models\Equipo;
-use App\Models\Piso;
 use App\Models\Torre;
 use App\Models\Ubicacion;
 

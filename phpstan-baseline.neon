@@ -1,0 +1,331 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/AseoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$numero\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/AseoController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/AseoController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:minutos\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/EstructuraController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/EstructuraController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$numero\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/EstructuraController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/EvidenciaController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/HabitacionController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$numero\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/HabitacionController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$torre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/HabitacionController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:etiqueta\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/HabitacionController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:pedidos\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/HabitacionController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fecha_cierre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre_solicitante\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$prioridad\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:lugar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/MantenimientoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ubicaciones\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PlanoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Support\\HigherOrderCollectionProxy\<string, Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\>\:\:\$equipos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PlanoController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$huesped\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PortalController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:pedidos\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/PortalController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$area\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Models/Equipo.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Equipo.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$piso\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Equipo.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:lugar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Equipo.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>piso" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Equipo.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:etiqueta\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Habitacion.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Piso.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$area\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Models/Solicitud.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Solicitud.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:lugar\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Models/Solicitud.php
+
+		-
+			message: '#^Offset ''alta''\|''baja''\|''media''\|''urgente'' on array\{urgente\: 2, alta\: 8, media\: 24, baja\: 72\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/Solicitud.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between 2\|8\|24\|72 and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: app/Models/Solicitud.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Cocina.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$cantidad\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$codigo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$descripcion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$documento\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$huesped\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$numero\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$precio_unitario\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tipo\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tipo_documento\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/Facturador.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$estado\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Housekeeping.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$numero\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Housekeeping.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$nombre\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/Recepcion.php

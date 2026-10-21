@@ -20,6 +20,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 /**
  * Simula unas tres semanas de operación del hotel pasando por los mismos servicios
@@ -414,7 +415,7 @@ class OperacionDemoSeeder extends Seeder
             [$nombre, $tipo, $ciudad] = $fila;
             $extranjero = in_array($ciudad, ['Caracas', 'San Cristóbal', 'Mérida', 'Maracaibo'], true) ? 'Venezuela'
                 : (['Berlín' => 'Alemania', 'Houston' => 'Estados Unidos', 'Quito' => 'Ecuador'][$ciudad] ?? 'Colombia');
-            $usuario = strtolower(str_replace(' ', '.', \Illuminate\Support\Str::ascii(\Illuminate\Support\Str::words($nombre, 2, ''))));
+            $usuario = strtolower(str_replace(' ', '.', Str::ascii(Str::words($nombre, 2, ''))));
 
             return Huesped::create([
                 'nombre' => $nombre,
