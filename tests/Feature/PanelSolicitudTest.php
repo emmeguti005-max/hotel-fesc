@@ -18,7 +18,7 @@ class PanelSolicitudTest extends TestCase
     {
         return Solicitud::create([
             'ubicacion_id' => $this->crearUbicacion()->id,
-            'tipo' => 'hardware',
+            'tipo' => 'electrico',
             'descripcion' => 'No enciende.',
             'prioridad' => 'media',
             'estado' => 'pendiente',
@@ -27,10 +27,10 @@ class PanelSolicitudTest extends TestCase
 
     public function test_un_tecnico_puede_tomar_una_solicitud_pendiente(): void
     {
-        $tecnico = User::factory()->create();
+        $tecnico = User::factory()->rol('mantenimiento')->create();
         $solicitud = $this->crearSolicitudPendiente();
 
-        $this->actingAs($tecnico)->post(route('panel.tomar', $solicitud))
+        $this->actingAs($tecnico)->post(route('panel.mantenimiento.tomar', $solicitud))
             ->assertRedirect();
 
         $solicitud->refresh();
@@ -40,12 +40,12 @@ class PanelSolicitudTest extends TestCase
 
     public function test_no_se_puede_tomar_dos_veces_la_misma_solicitud(): void
     {
-        $primero = User::factory()->create();
-        $segundo = User::factory()->create();
+        $primero = User::factory()->rol('mantenimiento')->create();
+        $segundo = User::factory()->rol('mantenimiento')->create();
         $solicitud = $this->crearSolicitudPendiente();
 
-        $this->actingAs($primero)->post(route('panel.tomar', $solicitud));
-        $response = $this->actingAs($segundo)->post(route('panel.tomar', $solicitud));
+        $this->actingAs($primero)->post(route('panel.mantenimiento.tomar', $solicitud));
+        $response = $this->actingAs($segundo)->post(route('panel.mantenimiento.tomar', $solicitud));
 
         $response->assertSessionHasErrors('estado');
         $solicitud->refresh();
@@ -54,11 +54,11 @@ class PanelSolicitudTest extends TestCase
 
     public function test_cerrar_una_solicitud_ya_cerrada_falla(): void
     {
-        $tecnico = User::factory()->create();
+        $tecnico = User::factory()->rol('mantenimiento')->create();
         $solicitud = $this->crearSolicitudPendiente();
         $solicitud->update(['estado' => 'resuelto', 'fecha_cierre' => now()]);
 
-        $response = $this->actingAs($tecnico)->post(route('panel.cerrar', $solicitud), [
+        $response = $this->actingAs($tecnico)->post(route('panel.mantenimiento.cerrar', $solicitud), [
             'estado' => 'resuelto',
         ]);
 

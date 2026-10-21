@@ -17,7 +17,7 @@ class SolicitudPublicaTest extends TestCase
 
         $response = $this->post(route('solicitudes.store'), [
             'ubicacion_id' => $ubicacion->id,
-            'tipo' => 'hardware',
+            'tipo' => 'electrico',
             'descripcion' => 'La impresora no enciende.',
             'prioridad' => 'media',
         ]);
@@ -37,7 +37,7 @@ class SolicitudPublicaTest extends TestCase
         $response = $this->post(route('solicitudes.store'), [
             'ubicacion_id' => $ubicacion->id,
             'equipo_id' => $equipo->id,
-            'tipo' => 'hardware',
+            'tipo' => 'electrico',
             'descripcion' => 'Prueba.',
             'prioridad' => 'media',
         ]);
@@ -51,7 +51,7 @@ class SolicitudPublicaTest extends TestCase
         $ubicacion = $this->crearUbicacion();
         $solicitud = Solicitud::create([
             'ubicacion_id' => $ubicacion->id,
-            'tipo' => 'hardware',
+            'tipo' => 'electrico',
             'descripcion' => 'x',
             'prioridad' => 'media',
             'estado' => 'pendiente',
@@ -66,7 +66,7 @@ class SolicitudPublicaTest extends TestCase
         $ubicacion = $this->crearUbicacion();
         $solicitud = Solicitud::create([
             'ubicacion_id' => $ubicacion->id,
-            'tipo' => 'hardware',
+            'tipo' => 'electrico',
             'descripcion' => 'x',
             'prioridad' => 'media',
             'estado' => 'en_proceso',

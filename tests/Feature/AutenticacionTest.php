@@ -29,7 +29,7 @@ class AutenticacionTest extends TestCase
             'password' => 'secreto123',
         ]);
 
-        $response->assertRedirect(route('panel.index'));
+        $response->assertRedirect(route('panel.dashboard'));
         $this->assertAuthenticatedAs($user);
     }
 
