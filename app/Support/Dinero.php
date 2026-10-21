@@ -9,4 +9,10 @@ class Dinero
     {
         return '$ '.number_format((float) $valor, 0, ',', '.');
     }
+
+    /** IVA sobre un subtotal, con el porcentaje configurado en config('hotel.iva'). */
+    public static function iva(float $subtotal): float
+    {
+        return round($subtotal * config('hotel.iva') / 100, 2);
+    }
 }

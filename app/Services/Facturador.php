@@ -6,6 +6,7 @@ use App\Models\Auditoria;
 use App\Models\Factura;
 use App\Models\Pedido;
 use App\Models\Reserva;
+use App\Support\Dinero;
 use App\Support\Etiquetas;
 use Illuminate\Support\Facades\DB;
 
@@ -93,7 +94,7 @@ class Facturador
     private function emitir(array $datos, array $items): Factura
     {
         $subtotal = round(collect($items)->sum(fn ($i) => $i['cantidad'] * $i['precio_unitario']), 2);
-        $iva = round($subtotal * config('hotel.iva') / 100, 2);
+        $iva = Dinero::iva($subtotal);
 
         $factura = Factura::create([
             ...$datos,

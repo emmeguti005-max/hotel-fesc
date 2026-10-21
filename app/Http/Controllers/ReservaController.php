@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Auditoria;
+use App\Http\Requests\StoreReservaRequest;
 use App\Models\Habitacion;
 use App\Models\Huesped;
 use App\Models\Reserva;
 use App\Services\Recepcion;
+use App\Support\Dinero;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -25,11 +25,11 @@ class ReservaController extends Controller
 
         $reservas = Reserva::query()
             ->with(['huesped', 'habitacion'])
-            ->when($vista === 'llegadas', fn ($q) => $q->where('estado', 'reservada')->whereDate('fecha_entrada', '<=', $hoy))
-            ->when($vista === 'hospedados', fn ($q) => $q->where('estado', 'en_curso'))
-            ->when($vista === 'salidas', fn ($q) => $q->where('estado', 'en_curso')->whereDate('fecha_salida', '<=', $hoy))
-            ->when($vista === 'activas', fn ($q) => $q->whereIn('estado', ['reservada', 'en_curso']))
-            ->when($vista === 'historial', fn ($q) => $q->whereIn('estado', ['finalizada', 'cancelada']))
+            ->when($vista === 'llegadas', fn ($q) => $q->where('estado', Reserva::RESERVADA)->whereDate('fecha_entrada', '<=', $hoy))
+            ->when($vista === 'hospedados', fn ($q) => $q->where('estado', Reserva::EN_CURSO))
+            ->when($vista === 'salidas', fn ($q) => $q->where('estado', Reserva::EN_CURSO)->whereDate('fecha_salida', '<=', $hoy))
+            ->when($vista === 'activas', fn ($q) => $q->whereIn('estado', [Reserva::RESERVADA, Reserva::EN_CURSO]))
+            ->when($vista === 'historial', fn ($q) => $q->whereIn('estado', [Reserva::FINALIZADA, Reserva::CANCELADA]))
             ->when($request->filled('q'), function ($q) use ($request) {
                 $texto = '%'.$request->string('q').'%';
                 $q->where(fn ($q) => $q->where('codigo', 'like', $texto)
@@ -46,7 +46,7 @@ class ReservaController extends Controller
     public function create(Request $request): View
     {
         $habitaciones = Habitacion::with('piso.torre')
-            ->whereNotIn('estado', ['bloqueada'])
+            ->whereNotIn('estado', [Habitacion::BLOQUEADA])
             ->orderBy('numero')
             ->get();
 
@@ -56,62 +56,12 @@ class ReservaController extends Controller
         return view('reservas.create', compact('habitaciones', 'huespedes', 'habitacionElegida'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreReservaRequest $request): RedirectResponse
     {
-        $datos = $request->validate([
-            'huesped.nombre' => ['required', 'string', 'max:120'],
-            'huesped.tipo_documento' => ['required', Rule::in(['CC', 'CE', 'PAS', 'NIT', 'TI'])],
-            'huesped.documento' => ['required', 'string', 'max:30'],
-            'huesped.telefono' => ['nullable', 'string', 'max:30'],
-            'huesped.correo' => ['nullable', 'email', 'max:120'],
-            'huesped.ciudad' => ['nullable', 'string', 'max:80'],
-            'huesped.pais' => ['nullable', 'string', 'max:80'],
-            'habitacion_id' => ['required', 'exists:habitaciones,id'],
-            'fecha_entrada' => ['required', 'date', 'after_or_equal:today'],
-            'fecha_salida' => ['required', 'date', 'after:fecha_entrada'],
-            'adultos' => ['required', 'integer', 'between:1,10'],
-            'ninos' => ['nullable', 'integer', 'between:0,10'],
-            'observaciones' => ['nullable', 'string', 'max:1000'],
-            'checkin_inmediato' => ['nullable', 'boolean'],
-        ]);
-
+        $datos = $request->validated();
         $habitacion = Habitacion::findOrFail($datos['habitacion_id']);
-        $personas = $datos['adultos'] + ($datos['ninos'] ?? 0);
 
-        if ($personas > $habitacion->capacidad) {
-            return back()->withInput()->withErrors(['adultos' => "La habitación {$habitacion->numero} admite máximo {$habitacion->capacidad} personas."]);
-        }
-
-        $reserva = DB::transaction(function () use ($datos, $habitacion) {
-            if (Reserva::seCruzaCon($habitacion->id, $datos['fecha_entrada'], $datos['fecha_salida'])->lockForUpdate()->exists()) {
-                return null;
-            }
-
-            $huesped = Huesped::updateOrCreate(
-                ['documento' => $datos['huesped']['documento']],
-                array_filter($datos['huesped'], fn ($v) => $v !== null) + ['pais' => 'Colombia'],
-            );
-
-            $reserva = Reserva::create([
-                'huesped_id' => $huesped->id,
-                'habitacion_id' => $habitacion->id,
-                'fecha_entrada' => $datos['fecha_entrada'],
-                'fecha_salida' => $datos['fecha_salida'],
-                'adultos' => $datos['adultos'],
-                'ninos' => $datos['ninos'] ?? 0,
-                'tarifa_noche' => $habitacion->tarifa_noche,
-                'observaciones' => $datos['observaciones'] ?? null,
-                'creada_por' => Auth::id(),
-            ]);
-
-            Auditoria::registrar('crear_reserva', 'reservas', $reserva->id, "{$reserva->fresh()->codigo} · {$huesped->nombre}");
-
-            return $reserva;
-        });
-
-        if (! $reserva) {
-            return back()->withInput()->withErrors(['habitacion_id' => "La habitación {$habitacion->numero} ya está reservada en esas fechas."]);
-        }
+        $reserva = $this->recepcion->crear($habitacion, $datos['huesped'], $datos, Auth::id());
 
         if (! empty($datos['checkin_inmediato']) && $reserva->fecha_entrada->isToday()) {
             $this->recepcion->checkIn($reserva, Auth::id());
@@ -128,7 +78,7 @@ class ReservaController extends Controller
 
         $consumos = $reserva->consumosPendientes()->get();
         $subtotal = $reserva->totalHospedaje() + $consumos->sum('total');
-        $iva = round($subtotal * config('hotel.iva') / 100, 2);
+        $iva = Dinero::iva($subtotal);
         $estimado = ['subtotal' => $subtotal, 'iva' => $iva, 'total' => $subtotal + $iva, 'consumos' => $consumos->sum('total')];
 
         return view('reservas.show', compact('reserva', 'estimado'));
@@ -164,7 +114,7 @@ class ReservaController extends Controller
     {
         $huespedes = Huesped::query()
             ->withCount('reservas')
-            ->with(['reservas' => fn ($q) => $q->where('estado', 'en_curso')->with('habitacion')])
+            ->with(['reservas' => fn ($q) => $q->where('estado', Reserva::EN_CURSO)->with('habitacion')])
             ->when($request->filled('q'), function ($q) use ($request) {
                 $texto = '%'.$request->string('q').'%';
                 $q->where(fn ($q) => $q->where('nombre', 'like', $texto)->orWhere('documento', 'like', $texto));

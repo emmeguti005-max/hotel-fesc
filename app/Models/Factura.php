@@ -9,6 +9,10 @@ use Illuminate\Support\Str;
 
 class Factura extends Model
 {
+    public const EMITIDA = 'emitida';
+
+    public const ANULADA = 'anulada';
+
     protected $fillable = [
         'tipo', 'reserva_id', 'huesped_id', 'cliente_nombre', 'cliente_documento', 'subtotal', 'iva', 'total',
         'forma_pago', 'estado', 'motivo_anulacion', 'emitida_por',

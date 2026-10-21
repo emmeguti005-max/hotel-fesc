@@ -9,12 +9,18 @@ use Illuminate\Support\Str;
 
 class Pedido extends Model
 {
+    public const ENTREGADO = 'entregado';
+
+    public const CANCELADO = 'cancelado';
+
+    public const CARGO_HABITACION = 'cargo_habitacion';
+
     /** Flujo de cocina: cada estado sólo puede avanzar al siguiente. */
     public const SIGUIENTE = [
         'recibido' => 'en_preparacion',
         'en_preparacion' => 'listo',
         'listo' => 'despachado',
-        'despachado' => 'entregado',
+        'despachado' => self::ENTREGADO,
     ];
 
     protected $fillable = [
@@ -88,6 +94,6 @@ class Pedido extends Model
 
     public function estaActivo(): bool
     {
-        return ! in_array($this->estado, ['entregado', 'cancelado'], true);
+        return ! in_array($this->estado, [self::ENTREGADO, self::CANCELADO], true);
     }
 }

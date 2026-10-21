@@ -10,6 +10,18 @@ use Illuminate\Support\Str;
 
 class Habitacion extends Model
 {
+    public const DISPONIBLE = 'disponible';
+
+    public const OCUPADA = 'ocupada';
+
+    public const SUCIA = 'sucia';
+
+    public const EN_LIMPIEZA = 'en_limpieza';
+
+    public const EN_MANTENIMIENTO = 'mantenimiento';
+
+    public const BLOQUEADA = 'bloqueada';
+
     protected $table = 'habitaciones';
 
     protected $fillable = [
@@ -40,7 +52,7 @@ class Habitacion extends Model
     /** La estadía activa (huésped hospedado ahora mismo), si la hay. */
     public function reservaActual(): HasOne
     {
-        return $this->hasOne(Reserva::class)->where('estado', 'en_curso')->latestOfMany('checkin_at');
+        return $this->hasOne(Reserva::class)->where('estado', Reserva::EN_CURSO)->latestOfMany('checkin_at');
     }
 
     public function tareasAseo(): HasMany

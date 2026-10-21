@@ -24,7 +24,7 @@ class FacturaController extends Controller
                     ->orWhere('cliente_documento', 'like', $texto));
             });
 
-        $totales = (clone $facturas)->where('estado', 'emitida')->selectRaw('count(*) as cantidad, coalesce(sum(total), 0) as total')->first();
+        $totales = (clone $facturas)->where('estado', Factura::EMITIDA)->selectRaw('count(*) as cantidad, coalesce(sum(total), 0) as total')->first();
         $facturas = $facturas->latest()->paginate(25)->withQueryString();
 
         return view('facturas.index', compact('facturas', 'totales'));
@@ -45,11 +45,11 @@ class FacturaController extends Controller
     {
         $motivo = $request->validate(['motivo' => ['required', 'string', 'max:255']])['motivo'];
 
-        if ($factura->estado === 'anulada') {
+        if ($factura->estado === Factura::ANULADA) {
             return back()->withErrors(['motivo' => 'La factura ya está anulada.']);
         }
 
-        $factura->update(['estado' => 'anulada', 'motivo_anulacion' => $motivo]);
+        $factura->update(['estado' => Factura::ANULADA, 'motivo_anulacion' => $motivo]);
         $factura->pedidos()->update(['factura_id' => null]);
         Auditoria::registrar('anular_factura', 'facturas', $factura->id, "{$factura->numero}: {$motivo}");
 

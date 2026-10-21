@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Reserva extends Model
 {
+    public const RESERVADA = 'reservada';
+
+    public const EN_CURSO = 'en_curso';
+
+    public const FINALIZADA = 'finalizada';
+
+    public const CANCELADA = 'cancelada';
+
     protected $fillable = [
         'huesped_id', 'habitacion_id', 'fecha_entrada', 'fecha_salida', 'adultos', 'ninos',
         'tarifa_noche', 'estado', 'checkin_at', 'checkout_at', 'observaciones', 'creada_por',
@@ -52,7 +60,7 @@ class Reserva extends Model
 
     public function factura(): HasOne
     {
-        return $this->hasOne(Factura::class)->where('estado', 'emitida');
+        return $this->hasOne(Factura::class)->where('estado', Factura::EMITIDA);
     }
 
     public function noches(): int
@@ -69,8 +77,8 @@ class Reserva extends Model
     public function consumosPendientes(): HasMany
     {
         return $this->pedidos()
-            ->where('forma_pago', 'cargo_habitacion')
-            ->where('estado', 'entregado')
+            ->where('forma_pago', Pedido::CARGO_HABITACION)
+            ->where('estado', Pedido::ENTREGADO)
             ->whereNull('factura_id');
     }
 
@@ -78,7 +86,7 @@ class Reserva extends Model
     public function scopeSeCruzaCon(Builder $query, int $habitacionId, string $entrada, string $salida): Builder
     {
         return $query->where('habitacion_id', $habitacionId)
-            ->whereIn('estado', ['reservada', 'en_curso'])
+            ->whereIn('estado', [self::RESERVADA, self::EN_CURSO])
             ->where('fecha_entrada', '<', $salida)
             ->where('fecha_salida', '>', $entrada);
     }
