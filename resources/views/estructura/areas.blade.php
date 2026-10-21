@@ -16,7 +16,7 @@
         @csrf
         <div class="flex-1">
             <label class="block text-xs font-medium text-stone-500 mb-1">Nueva área</label>
-            <input type="text" name="nombre" required maxlength="100" placeholder="Ej: Radiología, Enfermería"
+            <input type="text" name="nombre" required maxlength="100" placeholder="Ej: Restaurante, Zona húmeda, Lavandería"
                    class="w-full rounded-md input-retro text-sm">
         </div>
         <button type="submit" class="btn-retro px-4 py-2 rounded-md text-sm font-bold">

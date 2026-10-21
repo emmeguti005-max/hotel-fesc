@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AreaRequest;
+use App\Http\Requests\PisoRequest;
+use App\Http\Requests\PlanoPisoRequest;
+use App\Http\Requests\TorreRequest;
+use App\Http\Requests\UbicacionRequest;
 use App\Models\Area;
 use App\Models\Auditoria;
 use App\Models\Piso;
 use App\Models\Torre;
 use App\Models\Ubicacion;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -21,25 +26,17 @@ class EstructuraController extends Controller
         return view('estructura.torres', compact('torres'));
     }
 
-    public function storeTorre(Request $request): RedirectResponse
+    public function storeTorre(TorreRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:50'],
-        ]);
-
-        $torre = Torre::create($validated);
+        $torre = Torre::create($request->validated());
         Auditoria::registrar('crear_torre', 'torres', $torre->id, $torre->nombre);
 
         return back()->with('status', 'Torre creada.');
     }
 
-    public function updateTorre(Torre $torre, Request $request): RedirectResponse
+    public function updateTorre(Torre $torre, TorreRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:50'],
-        ]);
-
-        $torre->update($validated);
+        $torre->update($request->validated());
         Auditoria::registrar('editar_torre', 'torres', $torre->id, $torre->nombre);
 
         return back()->with('status', 'Torre actualizada.');
@@ -47,35 +44,35 @@ class EstructuraController extends Controller
 
     public function destroyTorre(Torre $torre): RedirectResponse
     {
-        if ($torre->pisos()->exists()) {
+        $eliminada = DB::transaction(function () use ($torre) {
+            if ($torre->pisos()->exists()) {
+                return false;
+            }
+
+            Auditoria::registrar('eliminar_torre', 'torres', $torre->id, $torre->nombre);
+            $torre->delete();
+
+            return true;
+        });
+
+        if (! $eliminada) {
             return back()->withErrors(['torre' => 'No se puede eliminar: la torre tiene pisos.']);
         }
-
-        Auditoria::registrar('eliminar_torre', 'torres', $torre->id, $torre->nombre);
-        $torre->delete();
 
         return back()->with('status', 'Torre eliminada.');
     }
 
     public function pisos(Torre $torre): View
     {
-        $pisos = $torre->pisos()->withCount('areas')->orderBy('numero')->get();
+        $pisos = $torre->pisos()->withCount(['areas', 'habitaciones'])->orderBy('numero')->get();
         $sotano = Piso::with('torre')->where('numero', -1)->first();
 
         return view('estructura.pisos', compact('torre', 'pisos', 'sotano'));
     }
 
-    public function storePiso(Torre $torre, Request $request): RedirectResponse
+    public function storePiso(Torre $torre, PisoRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'numero' => ['required', 'integer', 'between:-1,8'],
-        ]);
-
-        if ($validated['numero'] == -1 && Piso::where('numero', -1)->exists()) {
-            return back()->withErrors(['numero' => 'Ya existe un sótano, compartido por las tres torres.']);
-        }
-
-        $piso = $torre->pisos()->create($validated);
+        $piso = $torre->pisos()->create($request->validated());
         Auditoria::registrar('crear_piso', 'pisos', $piso->id, "Torre {$torre->nombre}, piso {$piso->numero}");
 
         return back()->with('status', 'Piso creado.');
@@ -83,22 +80,26 @@ class EstructuraController extends Controller
 
     public function destroyPiso(Torre $torre, Piso $piso): RedirectResponse
     {
-        if ($piso->areas()->exists()) {
-            return back()->withErrors(['piso' => 'No se puede eliminar: el piso tiene áreas.']);
-        }
+        $eliminado = DB::transaction(function () use ($torre, $piso) {
+            if ($piso->areas()->exists() || $piso->habitaciones()->exists()) {
+                return false;
+            }
 
-        Auditoria::registrar('eliminar_piso', 'pisos', $piso->id, "Torre {$torre->nombre}, piso {$piso->numero}");
-        $piso->delete();
+            Auditoria::registrar('eliminar_piso', 'pisos', $piso->id, "Torre {$torre->nombre}, piso {$piso->numero}");
+            $piso->delete();
+
+            return true;
+        });
+
+        if (! $eliminado) {
+            return back()->withErrors(['piso' => 'No se puede eliminar: el piso tiene zonas comunes o habitaciones.']);
+        }
 
         return back()->with('status', 'Piso eliminado.');
     }
 
-    public function storePlanoPiso(Torre $torre, Piso $piso, Request $request): RedirectResponse
+    public function storePlanoPiso(Torre $torre, Piso $piso, PlanoPisoRequest $request): RedirectResponse
     {
-        $request->validate([
-            'plano' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
-
         if ($piso->plano_imagen) {
             Storage::disk('public')->delete($piso->plano_imagen);
         }
@@ -127,25 +128,17 @@ class EstructuraController extends Controller
         return view('estructura.areas', compact('torre', 'piso', 'areas'));
     }
 
-    public function storeArea(Torre $torre, Piso $piso, Request $request): RedirectResponse
+    public function storeArea(Torre $torre, Piso $piso, AreaRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:100'],
-        ]);
-
-        $area = $piso->areas()->create($validated);
+        $area = $piso->areas()->create($request->validated());
         Auditoria::registrar('crear_area', 'areas', $area->id, $area->nombre);
 
         return back()->with('status', 'Área creada.');
     }
 
-    public function updateArea(Torre $torre, Piso $piso, Area $area, Request $request): RedirectResponse
+    public function updateArea(Torre $torre, Piso $piso, Area $area, AreaRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:100'],
-        ]);
-
-        $area->update($validated);
+        $area->update($request->validated());
         Auditoria::registrar('editar_area', 'areas', $area->id, $area->nombre);
 
         return back()->with('status', 'Área actualizada.');
@@ -153,12 +146,20 @@ class EstructuraController extends Controller
 
     public function destroyArea(Torre $torre, Piso $piso, Area $area): RedirectResponse
     {
-        if ($area->ubicaciones()->exists()) {
+        $eliminada = DB::transaction(function () use ($area) {
+            if ($area->ubicaciones()->exists()) {
+                return false;
+            }
+
+            Auditoria::registrar('eliminar_area', 'areas', $area->id, $area->nombre);
+            $area->delete();
+
+            return true;
+        });
+
+        if (! $eliminada) {
             return back()->withErrors(['area' => 'No se puede eliminar: el área tiene ubicaciones.']);
         }
-
-        Auditoria::registrar('eliminar_area', 'areas', $area->id, $area->nombre);
-        $area->delete();
 
         return back()->with('status', 'Área eliminada.');
     }
@@ -170,27 +171,17 @@ class EstructuraController extends Controller
         return view('estructura.ubicaciones', compact('torre', 'piso', 'area', 'ubicaciones'));
     }
 
-    public function storeUbicacion(Torre $torre, Piso $piso, Area $area, Request $request): RedirectResponse
+    public function storeUbicacion(Torre $torre, Piso $piso, Area $area, UbicacionRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:100'],
-            'tipo' => ['required', 'in:consultorio,oficina,pasillo,sala,deposito,otro'],
-        ]);
-
-        $ubicacion = $area->ubicaciones()->create($validated);
+        $ubicacion = $area->ubicaciones()->create($request->validated());
         Auditoria::registrar('crear_ubicacion', 'ubicaciones', $ubicacion->id, $ubicacion->nombre);
 
         return back()->with('status', 'Ubicación creada.');
     }
 
-    public function updateUbicacion(Torre $torre, Piso $piso, Area $area, Ubicacion $ubicacion, Request $request): RedirectResponse
+    public function updateUbicacion(Torre $torre, Piso $piso, Area $area, Ubicacion $ubicacion, UbicacionRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'nombre' => ['required', 'string', 'max:100'],
-            'tipo' => ['required', 'in:consultorio,oficina,pasillo,sala,deposito,otro'],
-        ]);
-
-        $ubicacion->update($validated);
+        $ubicacion->update($request->validated());
         Auditoria::registrar('editar_ubicacion', 'ubicaciones', $ubicacion->id, $ubicacion->nombre);
 
         return back()->with('status', 'Ubicación actualizada.');
@@ -198,12 +189,20 @@ class EstructuraController extends Controller
 
     public function destroyUbicacion(Torre $torre, Piso $piso, Area $area, Ubicacion $ubicacion): RedirectResponse
     {
-        if ($ubicacion->equipos()->exists() || $ubicacion->solicitudes()->exists()) {
-            return back()->withErrors(['ubicacion' => 'No se puede eliminar: tiene equipos o solicitudes asociadas.']);
-        }
+        $eliminada = DB::transaction(function () use ($ubicacion) {
+            if ($ubicacion->equipos()->exists() || $ubicacion->solicitudes()->exists()) {
+                return false;
+            }
 
-        Auditoria::registrar('eliminar_ubicacion', 'ubicaciones', $ubicacion->id, $ubicacion->nombre);
-        $ubicacion->delete();
+            Auditoria::registrar('eliminar_ubicacion', 'ubicaciones', $ubicacion->id, $ubicacion->nombre);
+            $ubicacion->delete();
+
+            return true;
+        });
+
+        if (! $eliminada) {
+            return back()->withErrors(['ubicacion' => 'No se puede eliminar: tiene activos o reportes de mantenimiento asociados.']);
+        }
 
         return back()->with('status', 'Ubicación eliminada.');
     }

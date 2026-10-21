@@ -44,7 +44,8 @@
             <thead class="bg-stone-50 text-left text-stone-500 text-xs uppercase">
                 <tr>
                     <th class="px-4 py-3">Piso</th>
-                    <th class="px-4 py-3">Áreas</th>
+                    <th class="px-4 py-3">Habitaciones</th>
+                    <th class="px-4 py-3">Zonas comunes</th>
                     <th class="px-4 py-3">Plano real</th>
                     <th class="px-4 py-3"></th>
                 </tr>
@@ -53,6 +54,7 @@
                 @forelse ($pisos as $piso)
                     <tr class="hover:bg-stone-50" x-data="{ subiendo: false }">
                         <td class="px-4 py-3">{{ $piso->numero == -1 ? 'Sótano (compartido)' : 'Piso '.$piso->numero }}</td>
+                        <td class="px-4 py-3 text-stone-600">{{ $piso->habitaciones_count }}</td>
                         <td class="px-4 py-3 text-stone-600">{{ $piso->areas_count }}</td>
                         <td class="px-4 py-3">
                             <div x-show="!subiendo" class="flex items-center gap-3">
@@ -81,7 +83,7 @@
                             </form>
                         </td>
                         <td class="px-4 py-3 text-right space-x-3">
-                            <a href="{{ route('panel.estructura.areas', [$torre, $piso]) }}" class="chip-retro">Ver áreas <span class="arrow">→</span></a>
+                            <a href="{{ route('panel.estructura.areas', [$torre, $piso]) }}" class="chip-retro">Zonas comunes <span class="arrow">→</span></a>
                             <form method="POST" action="{{ route('panel.estructura.pisos.destroy', [$torre, $piso]) }}" class="inline"
                                   onsubmit="return confirm('¿Eliminar este piso?')">
                                 @csrf @method('DELETE')
@@ -91,7 +93,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="px-4 py-8 text-center text-stone-400">Todavía no hay pisos.</td>
+                        <td colspan="5" class="px-4 py-8 text-center text-stone-400">Todavía no hay pisos.</td>
                     </tr>
                 @endforelse
             </tbody>

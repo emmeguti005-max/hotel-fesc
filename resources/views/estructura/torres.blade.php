@@ -4,13 +4,13 @@
 
 @section('content')
     <h2 class="text-2xl font-extrabold tracking-tight mb-1">Estructura física</h2>
-    <p class="text-sm text-stone-500 mb-6">Torres → Pisos → Áreas → Ubicaciones. Elimina solo lo que esté vacío.</p>
+    <p class="text-sm text-stone-500 mb-6">Torres → Pisos → Áreas → Zonas comunes. Las habitaciones se gestionan en <a href="{{ route('panel.habitaciones.index') }}" class="underline decoration-black/40 underline-offset-2 font-medium text-black">Habitaciones</a>. Elimina solo lo que esté vacío.</p>
 
     <form method="POST" action="{{ route('panel.estructura.torres.store') }}" class="card p-4 mb-6 flex items-end gap-3">
         @csrf
         <div class="flex-1">
             <label class="block text-xs font-medium text-stone-500 mb-1">Nueva torre</label>
-            <input type="text" name="nombre" required maxlength="50" placeholder="Ej: A, B, Excelencia"
+            <input type="text" name="nombre" required maxlength="50" placeholder="Ej: A, B, C"
                    class="w-full rounded-md input-retro text-sm">
         </div>
         <button type="submit" class="btn-retro px-4 py-2 rounded-md text-sm font-bold">

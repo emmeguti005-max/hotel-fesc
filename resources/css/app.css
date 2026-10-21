@@ -222,3 +222,36 @@ body {
         outline-offset: 2px;
     }
 }
+
+/*
+ * Impresión de facturas, registros de despacho y stickers QR: sin fondo punteado,
+ * sin menú ni botones, conservando el borde negro del "documento".
+ */
+@page {
+    size: letter;
+    margin: 12mm;
+}
+
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    main {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

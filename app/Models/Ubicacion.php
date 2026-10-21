@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** Zona común del hotel (lobby, restaurante, cocina, lavandería...). Las habitaciones van aparte. */
 class Ubicacion extends Model
 {
     protected $table = 'ubicaciones';

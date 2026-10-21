@@ -1,6 +1,6 @@
 @extends('layouts.panel')
 
-@section('title', 'Solicitud #'.$solicitud->id)
+@section('title', 'Reporte #'.$solicitud->id)
 
 @php
     $estadoBadge = [
@@ -12,23 +12,25 @@
 @endphp
 
 @section('content')
-    <a href="{{ route('panel.index') }}" class="no-print text-sm text-stone-500 hover:text-stone-700">&larr; Volver</a>
+    <a href="{{ route('panel.mantenimiento.index') }}" class="no-print text-sm text-stone-500 hover:text-stone-700">&larr; Volver</a>
 
     <div class="card overflow-hidden mt-4">
         <div class="file-titlebar">
             <span class="dot"></span><span class="dot"></span>
-            <span class="name">solicitud-{{ $solicitud->id }}.ticket</span>
+            <span class="name">reporte-{{ $solicitud->id }}.ticket</span>
         </div>
         <div class="p-6">
             <div class="flex items-start justify-between gap-4 mb-4">
                 <div>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Solicitud #{{ $solicitud->id }} · {{ ucfirst($solicitud->tipo) }}</h2>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Reporte #{{ $solicitud->id }} · {{ \App\Support\Etiquetas::TIPOS_SOLICITUD[$solicitud->tipo] ?? $solicitud->tipo }}</h2>
                     <p class="text-sm text-stone-500 mt-1">
-                        Torre {{ $solicitud->ubicacion->area->piso->torre->nombre }} ·
-                        {{ $solicitud->ubicacion->area->piso->numero == -1 ? 'Sótano' : 'Piso '.$solicitud->ubicacion->area->piso->numero }} ·
-                        {{ $solicitud->ubicacion->area->nombre }} · {{ $solicitud->ubicacion->nombre }}
+                        @if ($solicitud->habitacion)
+                            <a href="{{ route('panel.habitaciones.show', $solicitud->habitacion) }}" class="underline decoration-black/40 underline-offset-2">{{ $solicitud->lugar() }}</a>
+                        @else
+                            {{ $solicitud->lugar() }}
+                        @endif
                         @if ($solicitud->equipo)
-                            · Equipo: {{ $solicitud->equipo->nombre }}
+                            · Activo: <a href="{{ route('equipos.ficha', $solicitud->equipo) }}" class="underline decoration-black/40 underline-offset-2">{{ $solicitud->equipo->nombre }}</a>
                         @endif
                     </p>
                 </div>
@@ -54,34 +56,26 @@
                     <dt class="text-stone-400">Técnico asignado</dt>
                     <dd class="font-medium">{{ $solicitud->tecnico->nombre ?? '—' }}</dd>
                 </div>
-                <div>
-                    <dt class="text-stone-400">IP de origen</dt>
-                    <dd class="font-medium">{{ $solicitud->ip_origen ?? '—' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-stone-400">Equipo de red</dt>
-                    <dd class="font-medium">{{ $hostnameOrigen ?? 'No identificado' }}</dd>
-                </div>
             </dl>
 
             <p class="text-sm text-stone-700 whitespace-pre-line mb-6">{{ $solicitud->descripcion }}</p>
 
             <div class="flex flex-wrap gap-3">
-                @if ($solicitud->estado === 'pendiente')
-                    <form method="POST" action="{{ route('panel.tomar', $solicitud) }}">
+                @if ($solicitud->estado === 'pendiente' && auth()->user()->tieneRol('mantenimiento'))
+                    <form method="POST" action="{{ route('panel.mantenimiento.tomar', $solicitud) }}">
                         @csrf
                         <button type="submit" class="btn-retro px-4 py-2 rounded-md text-sm font-bold">
-                            Tomar solicitud
+                            Tomar reporte
                         </button>
                     </form>
                 @endif
 
-                @if (in_array($solicitud->estado, ['pendiente', 'en_proceso'], true))
-                    <form method="POST" action="{{ route('panel.cerrar', $solicitud) }}" x-data="{ open: false }">
+                @if (in_array($solicitud->estado, ['pendiente', 'en_proceso'], true) && auth()->user()->tieneRol('mantenimiento'))
+                    <form method="POST" action="{{ route('panel.mantenimiento.cerrar', $solicitud) }}" x-data="{ open: false }">
                         @csrf
                         <div x-show="!open">
                             <button type="button" @click="open = true" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-bold border-2 border-black shadow-hard-sm hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all">
-                                Cerrar solicitud
+                                Cerrar reporte
                             </button>
                         </div>
                         <div x-show="open" x-cloak class="flex flex-wrap items-center gap-2">
@@ -101,6 +95,44 @@
         </div>
     </div>
 
+    <div class="card overflow-hidden mt-6 no-print">
+        <div class="file-titlebar">
+            <span class="dot"></span><span class="dot"></span>
+            <span class="name">evidencias.fotos</span>
+        </div>
+        <div class="p-6">
+            @if ($solicitud->evidencias->isEmpty())
+                <p class="text-sm text-stone-400 mb-4">Todavía no hay fotos adjuntas.</p>
+            @else
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    @foreach ($solicitud->evidencias as $evidencia)
+                        <div class="relative group">
+                            <a href="{{ asset('storage/'.$evidencia->ruta_archivo) }}" target="_blank" rel="noopener">
+                                <img src="{{ asset('storage/'.$evidencia->ruta_archivo) }}" alt="Evidencia de la solicitud #{{ $solicitud->id }}"
+                                     class="w-full aspect-square object-cover rounded-md border-2 border-black shadow-hard-sm">
+                            </a>
+                            @if (auth()->user()->tieneRol('mantenimiento'))
+                            <form method="POST" action="{{ route('panel.evidencias.destroy', $evidencia) }}"
+                                  class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" title="Eliminar foto"
+                                        class="w-6 h-6 flex items-center justify-center rounded-full bg-white border-2 border-black text-xs font-bold leading-none">×</button>
+                            </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('panel.evidencias.store', $solicitud) }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-2">
+                @csrf
+                <input type="file" name="foto" accept="image/*" required class="text-sm">
+                <button type="submit" class="btn-retro px-4 py-2 rounded-md text-sm font-bold">Subir foto</button>
+            </form>
+        </div>
+    </div>
+
     @if (in_array($solicitud->estado, ['resuelto', 'no_resuelto'], true))
         <div id="qr-card" class="card overflow-hidden mt-6">
             <div class="file-titlebar">
@@ -111,8 +143,8 @@
                 <div class="w-32 h-32 shrink-0">{!! \App\Support\Qr::svg(route('solicitudes.comprobante', $solicitud)) !!}</div>
                 <div>
                     <p class="font-bold text-sm">Comprobante de servicio #{{ $solicitud->id }}</p>
-                    <p class="text-xs text-stone-500">{{ $solicitud->equipo->nombre ?? ucfirst($solicitud->tipo) }}</p>
-                    <p id="qr-hint" class="text-xs text-stone-400 mt-2">Pegalo en el equipo como registro de que se atendió. Al escanearlo, cualquiera ve el comprobante.</p>
+                    <p class="text-xs text-stone-500">{{ $solicitud->equipo->nombre ?? $solicitud->lugar() }}</p>
+                    <p id="qr-hint" class="text-xs text-stone-400 mt-2">Pégalo en el lugar o activo como registro de que se atendió. Al escanearlo, cualquiera ve el comprobante.</p>
                     <button id="qr-print-btn" onclick="window.print()" class="mt-3 text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">Imprimir sticker</button>
                 </div>
             </div>
@@ -146,7 +178,7 @@
             </div>
 
             @if ($solicitud->estado !== 'resuelto' && $solicitud->estado !== 'no_resuelto')
-                <form method="POST" action="{{ route('panel.comentar', $solicitud) }}" class="flex gap-2">
+                <form method="POST" action="{{ route('panel.mantenimiento.comentar', $solicitud) }}" class="flex gap-2">
                     @csrf
                     <input type="text" name="comentario" required placeholder="Agregar una nota de avance..."
                            class="flex-1 rounded-md input-retro text-sm">

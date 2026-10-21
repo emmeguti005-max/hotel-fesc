@@ -47,7 +47,7 @@ class AuthController extends Controller
             'fecha' => now(),
         ]);
 
-        return redirect()->intended(route('panel.index'));
+        return redirect()->intended(Auth::user()->rutaInicio());
     }
 
     public function logout(Request $request): RedirectResponse

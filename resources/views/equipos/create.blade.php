@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-extrabold tracking-tight">Registrar equipo</h2>
+        <h2 class="text-2xl font-extrabold tracking-tight">Registrar activo</h2>
         <a href="{{ route('panel.equipos.index') }}" class="text-sm text-stone-500 hover:underline">← Volver al inventario</a>
     </div>
 

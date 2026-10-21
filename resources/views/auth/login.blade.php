@@ -9,8 +9,8 @@
             <span class="name">acceso.session</span>
         </div>
         <div class="p-6">
-        <h2 class="text-2xl font-extrabold tracking-tight mb-1">Acceso técnico</h2>
-        <p class="text-sm text-stone-500 mb-6">Solo para técnicos y administradores.</p>
+        <h2 class="text-2xl font-extrabold tracking-tight mb-1">Acceso del personal</h2>
+        <p class="text-sm text-stone-500 mb-6">Recepción, aseo, restaurante, mantenimiento y administración.</p>
 
         @if ($errors->any())
             <div class="mb-4 rounded-md bg-red-100 border-2 border-black text-red-900 text-sm p-3 font-medium shadow-hard-sm">

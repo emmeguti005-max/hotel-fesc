@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Equipo;
+use App\Http\Requests\StoreSolicitudRequest;
+use App\Models\Habitacion;
 use App\Models\Solicitud;
 use App\Models\Torre;
 use Illuminate\Http\RedirectResponse;
@@ -11,41 +12,29 @@ use Illuminate\View\View;
 
 class SolicitudController extends Controller
 {
-    public function create(): View
+    /** Reporte de daños: en una habitación o en una zona común (lobby, piscina, cocina...). */
+    public function create(Request $request): View
     {
         $torres = Torre::with([
             'pisos' => fn ($q) => $q->orderBy('numero'),
             'pisos.areas' => fn ($q) => $q->orderBy('nombre'),
             'pisos.areas.ubicaciones' => fn ($q) => $q->orderBy('nombre'),
-            'pisos.areas.ubicaciones.equipos' => fn ($q) => $q->orderBy('nombre'),
+            'pisos.areas.ubicaciones.equipos' => fn ($q) => $q->where('estado', 'activo')->orderBy('nombre'),
         ])->orderBy('nombre')->get();
 
-        return view('solicitudes.create', compact('torres'));
+        $habitaciones = Habitacion::with(['equipos' => fn ($q) => $q->where('estado', 'activo')->orderBy('nombre')])
+            ->orderBy('numero')
+            ->get(['id', 'numero']);
+
+        $habitacionElegida = $request->integer('habitacion_id') ?: null;
+
+        return view('solicitudes.create', compact('torres', 'habitaciones', 'habitacionElegida'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreSolicitudRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'ubicacion_id' => ['required', 'exists:ubicaciones,id'],
-            'equipo_id' => ['nullable', 'exists:equipos,id'],
-            'nombre_solicitante' => ['nullable', 'string', 'max:100'],
-            'tipo' => ['required', 'in:impresora,instalacion,red,hardware,software,otro'],
-            'descripcion' => ['required', 'string', 'max:2000'],
-            'prioridad' => ['required', 'in:baja,media,alta,urgente'],
-        ]);
-
-        if (! empty($validated['equipo_id'])) {
-            $equipo = Equipo::findOrFail($validated['equipo_id']);
-
-            if ($equipo->ubicacion_id !== (int) $validated['ubicacion_id']) {
-                return back()->withInput()->withErrors([
-                    'equipo_id' => 'El equipo seleccionado no pertenece a esa ubicación.',
-                ]);
-            }
-        }
-
         $solicitud = Solicitud::create([
-            ...$validated,
+            ...$request->validated(),
             'estado' => 'pendiente',
             'ip_origen' => $request->ip(),
         ]);
@@ -66,7 +55,7 @@ class SolicitudController extends Controller
             return redirect()->route('solicitudes.gracias', $solicitud);
         }
 
-        $solicitud->load(['equipo', 'ubicacion.area.piso.torre', 'tecnico']);
+        $solicitud->load(['equipo', 'ubicacion.area.piso.torre', 'habitacion.piso.torre', 'tecnico']);
         $notaCierre = $solicitud->seguimientos()->latest()->first();
 
         return view('solicitudes.comprobante', compact('solicitud', 'notaCierre'));

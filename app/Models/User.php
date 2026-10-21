@@ -25,6 +25,8 @@ class User extends Authenticatable
         'correo',
         'password',
         'rol',
+        'cargo',
+        'telefono',
         'activo',
     ];
 
@@ -56,13 +58,35 @@ class User extends Authenticatable
         return $this->rol === 'admin';
     }
 
-    public function isTecnico(): bool
+    /** El administrador tiene acceso a todas las áreas. */
+    public function tieneRol(string ...$roles): bool
     {
-        return $this->rol === 'tecnico';
+        return $this->isAdmin() || in_array($this->rol, $roles, true);
+    }
+
+    /** Pantalla a la que llega cada rol al iniciar sesión. */
+    public function rutaInicio(): string
+    {
+        return match ($this->rol) {
+            'aseo' => route('panel.aseo.index'),
+            'restaurante' => route('panel.pedidos.index'),
+            'mantenimiento' => route('panel.mantenimiento.index'),
+            default => route('panel.dashboard'),
+        };
     }
 
     public function solicitudesAsignadas(): HasMany
     {
         return $this->hasMany(Solicitud::class, 'tecnico_id');
+    }
+
+    public function tareasAseo(): HasMany
+    {
+        return $this->hasMany(TareaAseo::class, 'asignada_a');
+    }
+
+    public function pedidosDespachados(): HasMany
+    {
+        return $this->hasMany(Pedido::class, 'despachado_por');
     }
 }

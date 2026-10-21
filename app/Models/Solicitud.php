@@ -28,7 +28,7 @@ class Solicitud extends Model
     ];
 
     protected $fillable = [
-        'equipo_id', 'ubicacion_id', 'nombre_solicitante', 'tipo', 'descripcion',
+        'equipo_id', 'ubicacion_id', 'habitacion_id', 'nombre_solicitante', 'tipo', 'descripcion',
         'prioridad', 'estado', 'tecnico_id', 'fecha_asignacion', 'fecha_cierre', 'ip_origen',
     ];
 
@@ -45,6 +45,22 @@ class Solicitud extends Model
     public function ubicacion(): BelongsTo
     {
         return $this->belongsTo(Ubicacion::class);
+    }
+
+    public function habitacion(): BelongsTo
+    {
+        return $this->belongsTo(Habitacion::class);
+    }
+
+    public function lugar(): string
+    {
+        if ($this->habitacion) {
+            return $this->habitacion->lugar();
+        }
+
+        return $this->ubicacion
+            ? $this->ubicacion->area->piso->etiqueta().' · '.$this->ubicacion->area->nombre.' · '.$this->ubicacion->nombre
+            : '—';
     }
 
     public function tecnico(): BelongsTo

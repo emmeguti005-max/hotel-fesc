@@ -1,11 +1,11 @@
 @extends('layouts.panel')
 
-@section('title', 'Editar equipo')
+@section('title', 'Editar activo')
 
 @section('content')
     <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-extrabold tracking-tight">Editar equipo</h2>
-        <a href="{{ route('panel.equipos.index') }}" class="text-sm text-stone-500 hover:underline">← Volver al inventario</a>
+        <h2 class="text-2xl font-extrabold tracking-tight">Editar activo</h2>
+        <a href="{{ route('panel.equipos.index') }}" class="text-sm text-stone-500 hover:underline">← Volver al inventario de activos</a>
     </div>
 
     <div class="card overflow-hidden">
@@ -37,10 +37,10 @@
                 </div>
                 <div class="p-4 flex items-center justify-between gap-3">
                     <div>
-                        <span class="font-medium text-sm">{{ ucfirst($solicitud->tipo) }}</span>
+                        <span class="font-medium text-sm">{{ \App\Support\Etiquetas::TIPOS_SOLICITUD[$solicitud->tipo] ?? $solicitud->tipo }}</span>
                         <span class="text-stone-500 text-sm">— {{ $solicitud->descripcion }}</span>
                     </div>
-                    <a href="{{ route('panel.show', $solicitud) }}" class="chip-retro">Ver <span class="arrow">→</span></a>
+                    <a href="{{ route('panel.mantenimiento.show', $solicitud) }}" class="chip-retro">Ver <span class="arrow">→</span></a>
                 </div>
             </div>
         @endforeach

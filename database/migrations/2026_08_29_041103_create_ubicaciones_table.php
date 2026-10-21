@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('ubicaciones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('area_id')->constrained('areas')->cascadeOnDelete();
-            $table->string('nombre', 100); // 'Consultorio 304', 'Estación enfermería 3B'
-            $table->enum('tipo', ['consultorio', 'oficina', 'pasillo', 'sala', 'deposito', 'otro'])->default('otro');
+            $table->string('nombre', 100); // 'Recepción', 'Cuarto de máquinas'
+            $table->enum('tipo', ['lobby', 'restaurante', 'cocina', 'bodega', 'oficina', 'pasillo', 'recreacion', 'servicio', 'otro'])->default('otro');
             $table->timestamps();
         });
     }

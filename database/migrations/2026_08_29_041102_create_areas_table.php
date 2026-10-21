@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('areas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('piso_id')->constrained('pisos')->cascadeOnDelete();
-            $table->string('nombre', 100); // Radiología, Enfermería, Farmacia...
+            $table->string('nombre', 100); // Recepción y lobby, Restaurante, Zona húmeda...
             $table->timestamps();
         });
     }

@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('correo')->unique();
             $table->string('password');
-            $table->enum('rol', ['tecnico', 'admin'])->default('tecnico');
+            $table->enum('rol', ['admin', 'recepcion', 'aseo', 'restaurante', 'mantenimiento'])->default('recepcion');
+            $table->string('cargo', 100)->nullable(); // ej: 'Camarera de pisos', 'Chef', 'Recepcionista nocturno'
+            $table->string('telefono', 30)->nullable();
             $table->boolean('activo')->default(true);
             $table->rememberToken();
             $table->timestamps();

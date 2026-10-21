@@ -3,7 +3,7 @@
 @section('title', 'Estructura · Ubicaciones')
 
 @php
-    $tipos = ['consultorio', 'oficina', 'pasillo', 'sala', 'deposito', 'otro'];
+    $tipos = \App\Support\Etiquetas::TIPOS_UBICACION;
 @endphp
 
 @section('content')
@@ -19,14 +19,14 @@
         @csrf
         <div class="sm:col-span-2">
             <label class="block text-xs font-medium text-stone-500 mb-1">Nueva ubicación</label>
-            <input type="text" name="nombre" required maxlength="100" placeholder="Ej: Consultorio 304"
+            <input type="text" name="nombre" required maxlength="100" placeholder="Ej: Cocina principal, Piscina"
                    class="w-full rounded-md input-retro text-sm">
         </div>
         <div>
             <label class="block text-xs font-medium text-stone-500 mb-1">Tipo</label>
             <select name="tipo" required class="w-full rounded-md input-retro text-sm">
-                @foreach ($tipos as $tipo)
-                    <option value="{{ $tipo }}">{{ ucfirst($tipo) }}</option>
+                @foreach ($tipos as $tipo => $texto)
+                    <option value="{{ $tipo }}">{{ $texto }}</option>
                 @endforeach
             </select>
         </div>
@@ -62,14 +62,14 @@
                                 <input type="text" name="nombre" value="{{ $ubicacion->nombre }}" required maxlength="100"
                                        class="rounded-md input-retro text-sm py-1">
                                 <select name="tipo" class="rounded-md input-retro text-sm py-1">
-                                    @foreach ($tipos as $tipo)
-                                        <option value="{{ $tipo }}" @selected($ubicacion->tipo === $tipo)>{{ ucfirst($tipo) }}</option>
+                                    @foreach ($tipos as $tipo => $texto)
+                                        <option value="{{ $tipo }}" @selected($ubicacion->tipo === $tipo)>{{ $texto }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium text-xs">Guardar</button>
                             </form>
                         </td>
-                        <td class="px-4 py-3 text-stone-600" x-show="!editando">{{ ucfirst($ubicacion->tipo) }}</td>
+                        <td class="px-4 py-3 text-stone-600" x-show="!editando">{{ $tipos[$ubicacion->tipo] ?? $ubicacion->tipo }}</td>
                         <td class="px-4 py-3 text-stone-600" x-show="editando"></td>
                         <td class="px-4 py-3 text-stone-600">{{ $ubicacion->equipos_count }}</td>
                         <td class="px-4 py-3 text-right space-x-3">

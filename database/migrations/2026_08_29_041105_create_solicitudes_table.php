@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('solicitudes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('equipo_id')->nullable()->constrained('equipos')->nullOnDelete();
-            $table->foreignId('ubicacion_id')->constrained('ubicaciones');
+            $table->foreignId('ubicacion_id')->nullable()->constrained('ubicaciones'); // zona común; o habitacion_id
             $table->string('nombre_solicitante', 100)->nullable(); // texto libre y opcional, sin cuenta
-            $table->enum('tipo', ['impresora', 'instalacion', 'red', 'hardware', 'software', 'otro']);
+            $table->enum('tipo', ['electrico', 'plomeria', 'aire_acondicionado', 'tv_entretenimiento', 'wifi', 'cerrajeria', 'mobiliario', 'equipo_cocina', 'otro']);
             $table->text('descripcion');
             $table->enum('prioridad', ['baja', 'media', 'alta', 'urgente'])->default('media');
             $table->enum('estado', ['pendiente', 'en_proceso', 'resuelto', 'no_resuelto'])->default('pendiente');

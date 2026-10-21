@@ -1,6 +1,6 @@
 @extends('layouts.panel')
 
-@section('title', 'Solicitudes')
+@section('title', 'Mantenimiento')
 
 @php
     $estadoBadge = [
@@ -19,10 +19,10 @@
 
 @section('content')
     <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-extrabold tracking-tight">Solicitudes</h2>
+        <h2 class="text-2xl font-extrabold tracking-tight">Reportes de mantenimiento</h2>
         <div class="flex items-center gap-4">
             @if ($vencidas > 0)
-                <a href="{{ route('panel.index', array_merge(request()->except('page'), ['vencidas' => 1])) }}"
+                <a href="{{ route('panel.mantenimiento.index', array_merge(request()->except('page'), ['vencidas' => 1])) }}"
                    class="badge-retro px-2.5 py-0.5 text-xs bg-red-100 text-red-700 font-semibold">
                     {{ $vencidas }} atrasada{{ $vencidas === 1 ? '' : 's' }}
                 </a>
@@ -63,12 +63,11 @@
         </div>
 
         <div>
-            <label class="block text-xs font-medium text-stone-500 mb-1">Piso</label>
-            <select name="piso_id" onchange="this.form.submit()" class="w-full rounded-md input-retro text-sm">
+            <label class="block text-xs font-medium text-stone-500 mb-1">Lugar</label>
+            <select name="lugar" onchange="this.form.submit()" class="w-full rounded-md input-retro text-sm">
                 <option value="">Todos</option>
-                @foreach ($pisos as $piso)
-                    <option value="{{ $piso->id }}" @selected((string) request('piso_id') === (string) $piso->id)>{{ $piso->numero == -1 ? 'Sótano' : 'Piso '.$piso->numero }}</option>
-                @endforeach
+                <option value="habitacion" @selected(request('lugar') === 'habitacion')>Habitaciones</option>
+                <option value="zona" @selected(request('lugar') === 'zona')>Zonas comunes</option>
             </select>
         </div>
 
@@ -78,14 +77,14 @@
                 Solo atrasadas
             </label>
 
-            @if (request()->anyFilled(['estado', 'prioridad', 'torre_id', 'piso_id', 'vencidas']))
-                <a href="{{ route('panel.index') }}" class="text-sm text-stone-500 hover:text-stone-700">Limpiar filtros</a>
+            @if (request()->anyFilled(['estado', 'prioridad', 'torre_id', 'lugar', 'vencidas']))
+                <a href="{{ route('panel.mantenimiento.index') }}" class="text-sm text-stone-500 hover:text-stone-700">Limpiar filtros</a>
             @endif
         </div>
     </form>
 
     <div class="flex justify-end mb-3">
-        <a href="{{ route('panel.solicitudes.exportar', request()->query()) }}" class="text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">
+        <a href="{{ route('panel.mantenimiento.exportar', request()->query()) }}" class="text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">
             Exportar CSV
         </a>
     </div>
@@ -93,7 +92,7 @@
     <div class="card overflow-hidden">
         <div class="file-titlebar">
             <span class="dot"></span><span class="dot"></span>
-            <span class="name">solicitudes.csv</span>
+            <span class="name">mantenimiento.csv</span>
         </div>
         <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -127,22 +126,18 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-stone-600">
-                            Torre {{ $solicitud->ubicacion->area->piso->torre->nombre }} ·
-                            {{ $solicitud->ubicacion->area->piso->numero == -1 ? 'Sótano' : 'Piso '.$solicitud->ubicacion->area->piso->numero }} ·
-                            {{ $solicitud->ubicacion->area->nombre }} · {{ $solicitud->ubicacion->nombre }}
-                        </td>
-                        <td class="px-4 py-3 text-stone-600">{{ ucfirst($solicitud->tipo) }}</td>
+                        <td class="px-4 py-3 text-stone-600">{{ $solicitud->lugar() }}</td>
+                        <td class="px-4 py-3 text-stone-600">{{ \App\Support\Etiquetas::TIPOS_SOLICITUD[$solicitud->tipo] ?? $solicitud->tipo }}</td>
                         <td class="px-4 py-3 text-stone-600 max-w-xs truncate">{{ $solicitud->descripcion }}</td>
                         <td class="px-4 py-3 text-stone-600">{{ $solicitud->tecnico->nombre ?? '—' }}</td>
                         <td class="px-4 py-3 text-stone-500">{{ $solicitud->created_at->diffForHumans() }}</td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('panel.show', $solicitud) }}" class="chip-retro">Ver <span class="arrow">→</span></a>
+                            <a href="{{ route('panel.mantenimiento.show', $solicitud) }}" class="chip-retro">Ver <span class="arrow">→</span></a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-8 text-center text-stone-400">No hay solicitudes con estos filtros.</td>
+                        <td colspan="8" class="px-4 py-8 text-center text-stone-400">No hay reportes con estos filtros.</td>
                     </tr>
                 @endforelse
             </tbody>

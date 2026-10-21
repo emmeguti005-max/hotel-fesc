@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Solicitud enviada')
+@section('title', 'Reporte enviado')
 
 @php
     $estadoBadge = [
@@ -10,10 +10,10 @@
         'no_resuelto' => 'bg-red-100 text-red-800',
     ];
     $estadoMensaje = [
-        'pendiente' => 'El área técnica todavía no la toma. La va a revisar pronto.',
-        'en_proceso' => 'Un técnico ya la está atendiendo.',
-        'resuelto' => 'Ya se resolvió. ¡Gracias por reportarlo!',
-        'no_resuelto' => 'Se revisó, pero no se pudo resolver. El técnico dejó una nota.',
+        'pendiente' => 'Mantenimiento todavía no lo toma. Lo va a revisar pronto.',
+        'en_proceso' => 'Un técnico de mantenimiento ya lo está atendiendo.',
+        'resuelto' => 'Ya se reparó. ¡Gracias por avisarnos!',
+        'no_resuelto' => 'Se revisó, pero no se pudo reparar todavía. El técnico dejó una nota.',
     ];
     $estadoIcono = [
         'pendiente' => ['⏳', 'text-amber-500'],
@@ -28,11 +28,11 @@
     <div class="card overflow-hidden">
         <div class="file-titlebar">
             <span class="dot"></span><span class="dot"></span>
-            <span class="name">solicitud-{{ $solicitud->id }}.estado</span>
+            <span class="name">reporte-{{ $solicitud->id }}.estado</span>
         </div>
         <div class="p-6 text-center">
             <div class="{{ $iconoColor }} text-4xl mb-3">{{ $icono }}</div>
-            <h2 class="text-2xl font-extrabold tracking-tight mb-1">Solicitud #{{ $solicitud->id }}</h2>
+            <h2 class="text-2xl font-extrabold tracking-tight mb-1">Reporte #{{ $solicitud->id }}</h2>
             <span class="badge-retro inline-block px-3 py-1 text-xs mb-4 {{ $estadoBadge[$solicitud->estado] }}">
                 {{ ucfirst(str_replace('_', ' ', $solicitud->estado)) }}
             </span>
@@ -41,7 +41,7 @@
             <dl class="grid grid-cols-2 gap-4 text-sm text-left border-t border-stone-100 pt-4 mb-6">
                 <div>
                     <dt class="text-stone-400">Tipo</dt>
-                    <dd class="font-medium">{{ ucfirst($solicitud->tipo) }}</dd>
+                    <dd class="font-medium">{{ \App\Support\Etiquetas::TIPOS_SOLICITUD[$solicitud->tipo] ?? $solicitud->tipo }}</dd>
                 </div>
                 <div>
                     <dt class="text-stone-400">Prioridad</dt>
@@ -68,9 +68,12 @@
                         Ver comprobante completo
                     </a>
                 @endif
+                @if ($solicitud->habitacion)
+                    <a href="{{ route('portal.habitacion', $solicitud->habitacion) }}" class="inline-block text-sm text-black underline decoration-black/40 hover:decoration-black underline-offset-2 font-medium">Volver a mi habitación</a>
+                @endif
                 <a href="{{ route('solicitudes.create') }}"
                    class="inline-block btn-retro px-6 py-2 rounded-md font-bold">
-                    Reportar otro problema
+                    Reportar otro daño
                 </a>
             </div>
         </div>

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('equipos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ubicacion_id')->constrained('ubicaciones')->cascadeOnDelete();
-            $table->enum('tipo', ['pc', 'impresora', 'proyector', 'telefono', 'red', 'otro']);
-            $table->string('codigo', 50)->nullable(); // ej: 'PC-RAD-01'
+            $table->foreignId('ubicacion_id')->nullable()->constrained('ubicaciones')->cascadeOnDelete(); // zona común; o habitacion_id (ver migración de habitaciones)
+            $table->enum('tipo', ['televisor', 'aire_acondicionado', 'minibar', 'caja_fuerte', 'cerradura', 'telefono', 'computador', 'impresora', 'datafono', 'red', 'cocina', 'lavanderia', 'piscina', 'mobiliario', 'otro']);
+            $table->string('codigo', 50)->nullable(); // ej: 'TV-A201'
             $table->string('nombre', 100); // descripción corta visible
             $table->string('marca', 100)->nullable();
             $table->string('modelo', 100)->nullable();

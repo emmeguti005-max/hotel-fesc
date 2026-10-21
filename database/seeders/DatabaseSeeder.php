@@ -2,25 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Hotel completo de prueba: personal, torres/pisos/habitaciones/zonas comunes,
+     * activos, menú y unas semanas de operación simulada (estadías, pedidos,
+     * limpiezas, facturas y reportes de mantenimiento).
      */
     public function run(): void
     {
-        User::create([
-            'nombre' => 'Fabián',
-            'correo' => 'admin@clinicasanjose.local',
-            'password' => Hash::make('Usuario1'),
-            'rol' => 'admin',
+        $this->call([
+            PersonalSeeder::class,
+            EstructuraHotelSeeder::class,
+            ActivosSeeder::class,
+            MenuSeeder::class,
+            OperacionDemoSeeder::class,
         ]);
-
-        $this->call(EstructuraFisicaSeeder::class);
-        $this->call(DemoDatosSeeder::class);
     }
 }
