@@ -1,40 +1,41 @@
-// Flujo end-to-end de Reservas y Facturacion, de punta a punta en el navegador.
-// No se ejecuto en esta sesion (sin Cypress instalado / sin tiempo dado el
-// plazo de entrega); para correrlo:
-//   npm install --save-dev cypress
-//   php artisan serve --port=8001   (otra terminal, con hotel_fesc migrada/seedeada)
-//   npx cypress run
+// CP-31. Flujo de punta a punta en el navegador. Se ejecuta con: npm run suite
+import { LoginPage } from '../support/pages/LoginPage';
+import { ReservaPage } from '../support/pages/ReservaPage';
 
-describe('Reservas y check-in/check-out', () => {
+describe('Reservas: del formulario a la factura', () => {
+    const login = new LoginPage();
+    const reservas = new ReservaPage();
+
+    // Un documento distinto en cada prueba: ninguna depende de los datos de otra.
+    const documentoNuevo = () => String(Date.now());
+
     beforeEach(() => {
-        cy.visit('/login');
-        cy.get('input[name=correo]').type('recepcion@hotel.local');
-        cy.get('input[name=password]').type('Usuario1');
-        cy.get('form').submit();
-        cy.url().should('include', '/panel/dashboard');
+        login.entrarComo('recepcion@hotel.local');
     });
 
-    it('crea una reserva, hace checkin y checkout, y llega a la factura', () => {
-        cy.visit('/panel/reservas/crear');
+    it('crea la reserva, hace check-in y check-out, y llega a la factura', () => {
+        reservas.abrirFormulario();
+        reservas.llenar({ habitacion: 1, nombre: 'Huesped E2E', documento: documentoNuevo() });
+        reservas.guardar();
+        cy.contains('Reserva creada.').should('be.visible');
 
-        cy.get('select[name=habitacion_id]').select(1);
-        cy.get('input[name="huesped[nombre]"]').type('Huesped E2E');
-        cy.get('input[name="huesped[documento]"]').type('999888777');
-        cy.get('input[name=fecha_entrada]').type(new Date().toISOString().slice(0, 10));
-        cy.get('input[name=fecha_salida]')
-            .type(new Date(Date.now() + 86400000).toISOString().slice(0, 10));
-        cy.get('input[name=adultos]').clear().type('1');
-        cy.get('form').submit();
+        reservas.hacerCheckIn();
+        cy.contains('Check-in realizado').should('be.visible');
 
-        cy.contains('Reserva creada');
+        reservas.hacerCheckOut();
+        cy.location('pathname').should('match', /\/panel\/facturas\/\d+$/);
+        cy.contains(/FV-\d{6}/).should('be.visible');
+    });
 
-        cy.contains('button', 'Hacer check-in').click();
-        cy.contains('Check-in realizado');
+    it('rechaza una segunda reserva de la misma habitación en esas fechas', () => {
+        reservas.abrirFormulario();
+        reservas.llenar({ habitacion: 2, nombre: 'Primer huesped', documento: documentoNuevo() });
+        reservas.guardar();
+        cy.contains('Reserva creada.').should('be.visible');
 
-        cy.get('select[name=forma_pago]').select('efectivo');
-        cy.contains('button', 'Check-out y facturar').click();
-
-        cy.url().should('include', '/panel/facturas/');
-        cy.contains('FV-');
+        reservas.abrirFormulario();
+        reservas.llenar({ habitacion: 2, nombre: 'Segundo huesped', documento: `${documentoNuevo()}9` });
+        reservas.guardar();
+        cy.contains('ya está reservada en esas fechas').should('be.visible');
     });
 });

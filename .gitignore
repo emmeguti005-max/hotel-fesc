@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
