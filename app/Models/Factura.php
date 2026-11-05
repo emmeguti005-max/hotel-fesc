@@ -31,7 +31,7 @@ class Factura extends Model
         });
 
         static::created(function (self $factura) {
-            $factura->updateQuietly(['numero' => sprintf('FV-%06d', $factura->id)]);
+            $factura->forceFill(['numero' => sprintf('FV-%06d', $factura->id)])->saveQuietly();
         });
     }
 

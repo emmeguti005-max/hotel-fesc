@@ -44,7 +44,7 @@ class Pedido extends Model
         });
 
         static::created(function (self $pedido) {
-            $pedido->updateQuietly(['codigo' => sprintf('PED-%06d', $pedido->id)]);
+            $pedido->forceFill(['codigo' => sprintf('PED-%06d', $pedido->id)])->saveQuietly();
         });
     }
 

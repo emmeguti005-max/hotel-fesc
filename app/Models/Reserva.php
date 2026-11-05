@@ -34,7 +34,7 @@ class Reserva extends Model
     protected static function booted(): void
     {
         static::created(function (self $reserva) {
-            $reserva->updateQuietly(['codigo' => sprintf('RES-%06d', $reserva->id)]);
+            $reserva->forceFill(['codigo' => sprintf('RES-%06d', $reserva->id)])->saveQuietly();
         });
     }
 
