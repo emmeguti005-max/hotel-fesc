@@ -1,63 +1,40 @@
-<<<<<<< HEAD
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Hotel FESC
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![CI](https://github.com/emmeguti005-max/hotel-fesc/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/emmeguti005-max/hotel-fesc/actions/workflows/ci.yml)
+[![CI develop](https://github.com/emmeguti005-max/hotel-fesc/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/emmeguti005-max/hotel-fesc/actions/workflows/ci.yml?query=branch%3Adevelop)
 
-## About Laravel
+Sistema de gestión hotelera (habitaciones, huéspedes y reservas, aseo, restaurante con pedidos por QR y facturación) hecho en Laravel 12 + MySQL.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Cómo correrlo
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve        # http://127.0.0.1:8000
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Pruebas
 
-## Learning Laravel
+| Comando | Qué hace |
+|---|---|
+| `php artisan test` | PHPUnit (SQLite en memoria) |
+| `npm run suite` | PHPUnit + Cypress con un solo comando (base SQLite propia, no toca la real) |
+| `vendor/bin/pint --test` | Estilo de código |
+| `vendor/bin/phpstan analyse` | Análisis estático (Larastan nivel 5) |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Integración continua
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+El pipeline vive en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) y corre con cada push a `main` y `develop` y con cada pull request:
 
-## Laravel Sponsors
+1. Validar `composer.json` / `composer.lock`
+2. Instalar dependencias (con caché)
+3. Estilo (Pint)
+4. Análisis estático (PHPStan)
+5. PHPUnit con cobertura (PCOV)
+6. Umbral de cobertura (`scripts/umbral-cobertura.php`, mínimo en la variable `COBERTURA_MINIMA`)
+7. Publicar el reporte (HTML, Clover y JUnit) como artefacto
+8. E2E con Cypress (reserva → check-in → check-out → factura)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# hotel-fesc
->>>>>>> 354a0163d5e9b0567baff1f9aa9eeae63b55c75b
+No necesita secretos: la `APP_KEY` se genera en cada ejecución y las pruebas usan SQLite.

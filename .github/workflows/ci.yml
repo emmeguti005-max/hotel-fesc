@@ -1,36 +1,154 @@
+# Pipeline de integración continua de Hotel FESC (Unidad 3 - Codificación y Pruebas).
+# Orden "fail fast": primero lo barato y rápido (validar, estilo, análisis estático),
+# después lo costoso (pruebas con cobertura y, al final, E2E con Cypress).
 name: CI
 
 on:
   push:
+    branches: [main, develop]
   pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Si llega un push nuevo a la misma rama, se cancela la ejecución anterior (ahorra minutos).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Umbral de calidad: cobertura mínima de líneas. Se puede subir por sprint con la
+  # variable de repositorio COBERTURA_MINIMA (Settings > Secrets and variables > Actions > Variables).
+  COBERTURA_MINIMA: ${{ vars.COBERTURA_MINIMA || '30' }}
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  calidad:
+    name: Calidad (estilo, PHPStan, PHPUnit y cobertura)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar el código
+        uses: actions/checkout@v4
 
-      - name: PHP
+      - name: PHP 8.3 con PCOV
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mbstring, pdo_sqlite, intl
+          coverage: pcov
+          tools: composer:v2
 
-      - name: Instalar dependencias de Composer
-        run: composer install --no-interaction --prefer-dist
+      - name: Validar composer.json y composer.lock
+        run: composer validate --no-check-publish
 
-      - name: Copiar .env de pruebas
-        run: cp .env.example .env
+      - name: Ubicar la caché de Composer
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
-      - name: Generar APP_KEY
-        run: php artisan key:generate
+      - name: Caché de dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
 
-      - name: Estilo de codigo (Pint)
+      - name: Instalación de dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Preparar el .env de pruebas (APP_KEY se genera en cada ejecución)
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Estilo de código (Pint)
         run: vendor/bin/pint --test
 
-      - name: Analisis estatico (PHPStan)
-        run: vendor/bin/phpstan analyse --no-progress
+      - name: Análisis estático (PHPStan / Larastan nivel 5)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G --error-format=github
 
-      - name: Pruebas (phpunit.xml ya usa SQLite en memoria)
-        run: php artisan test
+      - name: Pruebas PHPUnit con cobertura
+        run: >
+          vendor/bin/phpunit
+          --coverage-clover build/coverage/clover.xml
+          --coverage-html build/coverage/html
+          --coverage-text=build/coverage/resumen.txt
+          --log-junit build/junit.xml
+
+      - name: Umbral de cobertura (quality gate)
+        run: php scripts/umbral-cobertura.php build/coverage/clover.xml "$COBERTURA_MINIMA"
+
+      - name: Publicar el reporte como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-pruebas-${{ github.run_number }}
+          path: build/
+          retention-days: 14
+          if-no-files-found: warn
+
+  e2e:
+    name: E2E (Cypress, reserva -> check-in -> check-out -> factura)
+    needs: calidad
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Ubicar la caché de Composer
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Caché de dependencias de Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Instalación de dependencias de PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Node 22 con caché de npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Caché del binario de Cypress
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Instalación de dependencias de Node
+        run: npm ci
+
+      - name: Preparar el .env y compilar los assets
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          npm run build
+
+      - name: Cypress (servidor con base SQLite propia)
+        run: node scripts/suite.cjs --solo-e2e
+
+      - name: Capturas de Cypress si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-capturas-${{ github.run_number }}
+          path: cypress/screenshots
+          if-no-files-found: ignore

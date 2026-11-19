@@ -1,4 +1,4 @@
-// Suite completa con un solo comando: npm run suite
+// Suite completa con un solo comando: npm run suite  (en CI: node scripts/suite.cjs --solo-e2e)
 // 1) PHPUnit (SQLite en memoria)  2) Cypress contra un servidor con su propia base SQLite.
 // Nunca toca la base hotel_fesc: antes de migrar comprueba que la conexion sea SQLite.
 const { spawn, spawnSync } = require('node:child_process');
@@ -93,7 +93,9 @@ async function e2e() {
 
 (async () => {
     const inicio = Date.now();
-    const unitarias = correr('php', ['artisan', 'test']);
+    // --solo-e2e: en CI PHPUnit ya corrió en el job "calidad", aquí solo va Cypress.
+    const soloE2e = process.argv.includes('--solo-e2e');
+    const unitarias = soloE2e ? 0 : correr('php', ['artisan', 'test']);
     const interfaz = await e2e();
     const segundos = ((Date.now() - inicio) / 1000).toFixed(1);
 
