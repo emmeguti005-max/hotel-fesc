@@ -21,7 +21,7 @@ permissions:
 env:
   # Umbral de calidad: cobertura mínima de líneas. Se puede subir por sprint con la
   # variable de repositorio COBERTURA_MINIMA (Settings > Secrets and variables > Actions > Variables).
-  COBERTURA_MINIMA: ${{ vars.COBERTURA_MINIMA || '30' }}
+  COBERTURA_MINIMA: ${{ vars.COBERTURA_MINIMA || '90' }}
 
 jobs:
   calidad:
@@ -78,7 +78,7 @@ jobs:
           --log-junit build/junit.xml
 
       - name: Umbral de cobertura (quality gate)
-        run: php scripts/umbral-cobertura.php build/coverage/clover.xml "$COBERTURA_MINIMA"
+        run: php scripts/umbral-cobertura.php build/coverage/clover.xml "$COBERTURA_MINIMA" build/junit.xml
 
       - name: Publicar el reporte como artefacto
         if: always()
