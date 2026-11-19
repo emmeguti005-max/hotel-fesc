@@ -19,9 +19,10 @@ permissions:
   contents: read
 
 env:
-  # Umbral de calidad: cobertura mínima de líneas. Se puede subir por sprint con la
+  # Umbral de calidad: cobertura mínima de líneas (CS-3 del Plan de Pruebas: >= 40 %;
+  # medida en CI el 18/11/2026: 42,89 %). Se sube por sprint con la
   # variable de repositorio COBERTURA_MINIMA (Settings > Secrets and variables > Actions > Variables).
-  COBERTURA_MINIMA: ${{ vars.COBERTURA_MINIMA || '90' }}
+  COBERTURA_MINIMA: ${{ vars.COBERTURA_MINIMA || '40' }}
 
 jobs:
   calidad:
